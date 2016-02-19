@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"runtime"
 	"time"
 )
 
@@ -120,6 +121,7 @@ func generator(r, leng, boxleng, vol float64) (x, y, z, ex, ey, ez []float64) {
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
+	runtime.GOMAXPROCS(8)
 	r := 1.6
 	leng := 800.0
 	boxleng := 5000.0
