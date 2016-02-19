@@ -145,4 +145,5 @@ func main() {
 		sinbeta[i] = res[1]
 	}
 	fmt.Println(len(dists))
+	fmt.Println(len(sinbeta))
 }
