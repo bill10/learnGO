@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
-	"runtime"
 	"time"
 )
 
-func dist(x1, y1, z1, x2, y2, z2, ex1, ey1, ez1, ex2, ey2, ez2, leng float64, ch chan float64) {
+func dist(x1, y1, z1, x2, y2, z2, ex1, ey1, ez1, ex2, ey2, ez2, leng float64, ch chan [2]float64) {
 	var xmu0, xla0 float64
 	// distance vector between centers:
 	x12 := x2 - x1
@@ -87,7 +86,8 @@ func dist(x1, y1, z1, x2, y2, z2, ex1, ey1, ez1, ex2, ey2, ez2, leng float64, ch
 	}
 	rclsq := rnsq + risq
 	rcl := math.Sqrt(rclsq)
-	ch <- rcl
+	res := [2]float64{rcl, math.Sqrt(1 - e12*e12)}
+	ch <- res
 }
 
 func generator(r, leng, boxleng, vol float64) (x, y, z, ex, ey, ez []float64) {
@@ -121,14 +121,12 @@ func generator(r, leng, boxleng, vol float64) (x, y, z, ex, ey, ez []float64) {
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	runtime.GOMAXPROCS(8)
 	r := 1.6
 	leng := 800.0
 	boxleng := 5000.0
 	vol := 0.001
 	x, y, z, ex, ey, ez := generator(r, leng, boxleng, vol)
-	dists := make([]float64, 0, 4*len(x))
-	ch := make(chan float64, 100)
+	ch := make(chan [2]float64, 100)
 	count := 0
 	for i := 0; i < len(x); i++ {
 		for j := i + 1; j < len(x); j++ {
@@ -138,8 +136,13 @@ func main() {
 			}
 		}
 	}
+	dists := make([]float64, count)
+	sinbeta := make([]float64, count)
+	var res [2]float64
 	for i := 0; i < count; i++ {
-		dists = append(dists, <-ch)
+		res = <-ch
+		dists[i] = res[0]
+		sinbeta[i] = res[1]
 	}
 	fmt.Println(len(dists))
 }
