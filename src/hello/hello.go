@@ -179,6 +179,7 @@ func main() {
 		dists = append([]float64(nil), dists[:len(dists)]...)
 		sinbeta = append([]float64(nil), sinbeta[:len(sinbeta)]...)
 	}
+	fmt.Println(len(dists))
 	rs := make([]float64, 0, 9)
 	vols := make([]float64, 0, 9)
 	overlaps := make([]float64, 0, 9)
