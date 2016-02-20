@@ -170,6 +170,7 @@ func main() {
 			sinbeta = append(sinbeta, res[1])
 		}
 	}
+	fmt.Println("Calaculating distance completed!")
 	rs := make([]float64, 0, 9)
 	vols := make([]float64, 0, 9)
 	overlaps := make([]float64, 0, 9)
