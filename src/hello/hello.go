@@ -148,6 +148,7 @@ func main() {
 	boxleng := 5000.0
 	vol := 0.001
 	x, y, z, ex, ey, ez := generator(r, leng, boxleng, vol)
+	fmt.Println(len(x))
 	ch := make(chan [2]float64, 100)
 	count := 0
 	for i := 0; i < len(x); i++ {
@@ -160,18 +161,19 @@ func main() {
 	}
 	dists := make([]float64, count)
 	sinbeta := make([]float64, count)
-	var res [2]float64
-	k := 0
-	for i := 0; i < count; i++ {
-		res = <-ch
-		if res[0] >= 0 {
-			dists[k] = res[0]
-			sinbeta[k] = res[1]
-			k++
-		}
-	}
+	// var res [2]float64
+	// k := 0
+	// for i := 0; i < count; i++ {
+	// 	res = <-ch
+	// 	if res[0] >= 0 {
+	// 		dists[k] = res[0]
+	// 		sinbeta[k] = res[1]
+	// 		k++
+	// 	}
+	// }
 	fmt.Println("Calaculating distance completed!")
 	fmt.Println(len(dists))
+	fmt.Println(len(sinbeta))
 	// rs := make([]float64, 0, 9)
 	// vols := make([]float64, 0, 9)
 	// overlaps := make([]float64, 0, 9)
