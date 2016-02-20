@@ -146,7 +146,7 @@ func main() {
 	r := 0.6
 	leng := 800.0
 	boxleng := 5000.0
-	vol := 0.001
+	vol := 0.0001
 	x, y, z, ex, ey, ez := generator(r, leng, boxleng, vol)
 	fmt.Println(len(x))
 	ch := make(chan [2]float64, 100)
