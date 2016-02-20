@@ -5,6 +5,8 @@ import (
 	"math"
 	"math/rand"
 	"time"
+
+	clc "github.com/TheDemx27/calculus"
 )
 
 func dist(x1, y1, z1, x2, y2, z2, ex1, ey1, ez1, ex2, ey2, ez2, leng float64, ch chan [2]float64) {
@@ -124,7 +126,7 @@ func main() {
 	r := 1.6
 	leng := 800.0
 	boxleng := 5000.0
-	vol := 0.001
+	vol := 0.0001
 	x, y, z, ex, ey, ez := generator(r, leng, boxleng, vol)
 	ch := make(chan [2]float64, 100)
 	count := 0
@@ -146,4 +148,6 @@ func main() {
 	}
 	fmt.Println(len(dists))
 	fmt.Println(len(sinbeta))
+	f := clc.NewFunc(fmt.Sprintf("sqrt(%f^2-x^2)*sqrt(%f^2-(%f-x)^2)", r, r, 3.0))
+	fmt.Println(f.AntiDiff(1.5, r))
 }
