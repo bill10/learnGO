@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"sync"
 	"time"
 
@@ -147,58 +149,60 @@ func main() {
 	leng := 800.0
 	boxleng := 5000.0
 	vol := 0.001
+	fmt.Printf("Time: %s r: %f vol: %f\n", time.Now(), r, vol)
 	x, y, z, ex, ey, ez := generator(r, leng, boxleng, vol)
 	fmt.Printf("Rods: %d\n", len(x))
 	ch := make(chan [2]float64, 1000)
-	var pairs, overlapPairs, largei uint64 = 0, 0, 0
+	var pairs, largei uint64 = 0, 0
 	for i := 0; i < len(x); i++ {
 		for j := i + 1; j < len(x); j++ {
-			if (x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])+(z[i]-z[j])*(z[i]-z[j]) <= (leng+2*8.6)*(leng+2*8.6) {
+			if (x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])+(z[i]-z[j])*(z[i]-z[j]) <= (leng+2.0*8.6)*(leng+2.0*8.6) {
 				go getDistance(x[i], y[i], z[i], x[j], y[j], z[j], ex[i], ey[i], ez[i], ex[j], ey[j], ez[j], leng, ch)
 				pairs++
 			}
 		}
 	}
 	fmt.Printf("Candidate pairs: %d\n", pairs)
-	dists := make([]float64, pairs)
-	sinbeta := make([]float64, pairs)
+	dists := make([]float64, 0, 10*len(x))
+	sinbeta := make([]float64, 0, 10*len(x))
 	var res [2]float64
 	for largei = 0; largei < pairs; largei++ {
 		res = <-ch
 		if res[0] >= 0 {
-			dists[overlapPairs] = res[0]
-			sinbeta[overlapPairs] = res[1]
-			overlapPairs++
+			dists = append(dists, res[0])
+			sinbeta = append(sinbeta, res[1])
+			//overlapPairs++
 		}
 	}
-	fmt.Println("Calaculating distance completed!")
-	fmt.Printf("Overlap pairs: %d\n", overlapPairs)
-	fmt.Println(len(dists))
-	fmt.Println(len(sinbeta))
-	// rs := make([]float64, 0, 9)
-	// vols := make([]float64, 0, 9)
-	// overlaps := make([]float64, 0, 9)
-	// var wg sync.WaitGroup
-	// for r = 0.6; r <= 8.6; r++ {
-	// 	totalOverlap := Overlap{volume: 0.0}
-	// 	for i := 0; i < len(dists); i++ {
-	// 		if dists[i] < 2*r {
-	// 			wg.Add(1)
-	// 			go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
-	// 		}
-	// 	}
-	// 	wg.Wait()
-	// 	rs = append(rs, r)
-	// 	vols = append(vols, (math.Pi*r*r*leng+4.0/3.0*math.Pi*r*r*r)*float64(len(x)))
-	// 	overlaps = append(overlaps, totalOverlap.volume)
-	// }
+	fmt.Printf("Overlap pairs: %d\n", len(dists))
+	if cap(dists) > len(dists) {
+		dists = append([]float64(nil), dists[:len(dists)]...)
+		sinbeta = append([]float64(nil), sinbeta[:len(sinbeta)]...)
+	}
+	rs := make([]float64, 0, 9)
+	vols := make([]float64, 0, 9)
+	overlaps := make([]float64, 0, 9)
+	var wg sync.WaitGroup
+	for r = 0.6; r <= 8.6; r++ {
+		totalOverlap := Overlap{volume: 0.0}
+		for i := 0; i < len(dists); i++ {
+			if dists[i] < 2*r {
+				wg.Add(1)
+				go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
+			}
+		}
+		wg.Wait()
+		rs = append(rs, r)
+		vols = append(vols, (math.Pi*r*r*leng+4.0/3.0*math.Pi*r*r*r)*float64(len(x)))
+		overlaps = append(overlaps, totalOverlap.volume)
+	}
 
-	// outfile, _ := os.Create("path0.6.csv")
-	// defer outfile.Close()
-	// writer := bufio.NewWriter(outfile)
-	// writer.WriteString("rs,vols,overlaps\n")
-	// for i := 0; i < len(rs); i++ {
-	// 	writer.WriteString(fmt.Sprintf("%f,%f,%f\n", rs[i], vols[i], overlaps[i]))
-	// }
-	// writer.Flush()
+	outfile, _ := os.Create("path0.1.csv")
+	defer outfile.Close()
+	writer := bufio.NewWriter(outfile)
+	writer.WriteString("rs,vols,overlaps\n")
+	for i := 0; i < len(rs); i++ {
+		writer.WriteString(fmt.Sprintf("%f,%f,%f\n", rs[i], vols[i], overlaps[i]))
+	}
+	writer.Flush()
 }
