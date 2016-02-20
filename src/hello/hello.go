@@ -171,6 +171,7 @@ func main() {
 		}
 	}
 	fmt.Println("Calaculating distance completed!")
+	fmt.Println(len(dists))
 	rs := make([]float64, 0, 9)
 	vols := make([]float64, 0, 9)
 	overlaps := make([]float64, 0, 9)
@@ -178,8 +179,10 @@ func main() {
 	for r = 0.6; r <= 8.6; r++ {
 		totalOverlap := Overlap{volume: 0.0}
 		for i := 0; i < len(dists); i++ {
-			wg.Add(1)
-			go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
+			if dists[i] < 2*r {
+				wg.Add(1)
+				go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
+			}
 		}
 		wg.Wait()
 		rs = append(rs, r)
