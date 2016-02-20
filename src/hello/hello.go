@@ -179,13 +179,12 @@ func main() {
 		dists = append([]float64(nil), dists[:len(dists)]...)
 		sinbeta = append([]float64(nil), sinbeta[:len(sinbeta)]...)
 	}
-	fmt.Println(dists[0])
-	fmt.Println(sinbeta[0])
 	rs := make([]float64, 0, 9)
 	vols := make([]float64, 0, 9)
 	overlaps := make([]float64, 0, 9)
 	var wg sync.WaitGroup
 	for r = 0.6; r <= 8.6; r++ {
+		fmt.Println(r)
 		totalOverlap := Overlap{volume: 0.0}
 		for i := 0; i < len(dists); i++ {
 			if dists[i] < 2*r {
