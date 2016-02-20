@@ -160,14 +160,16 @@ func main() {
 			}
 		}
 	}
-	dists := make([]float64, 0, count)
-	sinbeta := make([]float64, 0, count)
+	dists := make([]float64, count)
+	sinbeta := make([]float64, count)
 	var res [2]float64
+	k := 0
 	for i := 0; i < count; i++ {
 		res = <-ch
 		if res[0] >= 0 {
-			dists = append(dists, res[0])
-			sinbeta = append(sinbeta, res[1])
+			dists[k] = res[0]
+			sinbeta[k] = res[1]
+			k++
 		}
 	}
 	fmt.Println("Calaculating distance completed!")
