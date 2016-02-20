@@ -107,8 +107,8 @@ func getDistance(x1, y1, z1, x2, y2, z2, ex1, ey1, ez1, ex2, ey2, ez2, leng floa
 		rcl := math.Sqrt(rclsq)
 		res := [2]float64{rcl, math.Sqrt(1 - e12*e12)}
 		ch <- res
-	} else {
-		ch <- [2]float64{-1.0, -1.0}
+		// } else {
+		// 	ch <- [2]float64{-1.0, -1.0}
 	}
 }
 
@@ -159,18 +159,19 @@ func main() {
 			}
 		}
 	}
+	fmt.Println(count)
 	dists := make([]float64, count)
 	sinbeta := make([]float64, count)
-	// var res [2]float64
-	// k := 0
-	// for i := 0; i < count; i++ {
-	// 	res = <-ch
-	// 	if res[0] >= 0 {
-	// 		dists[k] = res[0]
-	// 		sinbeta[k] = res[1]
-	// 		k++
-	// 	}
-	// }
+	var res [2]float64
+	k := 0
+	for i := 0; i < count; i++ {
+		res = <-ch
+		if res[0] >= 0 {
+			dists[k] = res[0]
+			sinbeta[k] = res[1]
+			k++
+		}
+	}
 	fmt.Println("Calaculating distance completed!")
 	fmt.Println(len(dists))
 	fmt.Println(len(sinbeta))
