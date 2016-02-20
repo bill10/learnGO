@@ -175,10 +175,10 @@ func main() {
 		}
 	}
 	fmt.Printf("Overlap pairs: %d\n", len(dists))
-	if cap(dists) > len(dists) {
-		dists = append([]float64(nil), dists[:len(dists)]...)
-		sinbeta = append([]float64(nil), sinbeta[:len(sinbeta)]...)
-	}
+	// if cap(dists) > len(dists) {
+	// 	dists = append([]float64(nil), dists[:len(dists)]...)
+	// 	sinbeta = append([]float64(nil), sinbeta[:len(sinbeta)]...)
+	// }
 	rs := make([]float64, 0, 9)
 	vols := make([]float64, 0, 9)
 	overlaps := make([]float64, 0, 9)
@@ -189,7 +189,6 @@ func main() {
 		for i := 0; i < len(dists); i++ {
 			if dists[i] < 2*r {
 				wg.Add(1)
-				fmt.Println(i)
 				go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
 			}
 		}
