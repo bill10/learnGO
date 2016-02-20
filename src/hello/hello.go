@@ -107,8 +107,8 @@ func getDistance(x1, y1, z1, x2, y2, z2, ex1, ey1, ez1, ex2, ey2, ez2, leng floa
 		rcl := math.Sqrt(rclsq)
 		res := [2]float64{rcl, math.Sqrt(1 - e12*e12)}
 		ch <- res
-		// } else {
-		// 	ch <- [2]float64{-1.0, -1.0}
+	} else {
+		ch <- [2]float64{-1.0, -1.0}
 	}
 }
 
