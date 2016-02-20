@@ -146,9 +146,9 @@ func main() {
 	r := 0.6
 	leng := 800.0
 	boxleng := 5000.0
-	vol := 0.0001
+	vol := 0.001
 	x, y, z, ex, ey, ez := generator(r, leng, boxleng, vol)
-	fmt.Printf("Rods: %d", len(x))
+	fmt.Printf("Rods: %d\n", len(x))
 	ch := make(chan [2]float64, 1000)
 	var pairs, overlapPairs, largei uint64 = 0, 0, 0
 	for i := 0; i < len(x); i++ {
@@ -159,7 +159,7 @@ func main() {
 			}
 		}
 	}
-	fmt.Printf("Candidate pairs: %d", pairs)
+	fmt.Printf("Candidate pairs: %d\n", pairs)
 	dists := make([]float64, pairs)
 	sinbeta := make([]float64, pairs)
 	var res [2]float64
@@ -172,7 +172,7 @@ func main() {
 		}
 	}
 	fmt.Println("Calaculating distance completed!")
-	fmt.Printf("Overlap pairs: %d", overlapPairs)
+	fmt.Printf("Overlap pairs: %d\n", overlapPairs)
 	fmt.Println(len(dists))
 	fmt.Println(len(sinbeta))
 	// rs := make([]float64, 0, 9)
