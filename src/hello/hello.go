@@ -1,11 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math"
 	"math/rand"
-	"os"
 	"sync"
 	"time"
 
@@ -174,30 +172,30 @@ func main() {
 	}
 	fmt.Println("Calaculating distance completed!")
 	fmt.Println(len(dists))
-	rs := make([]float64, 0, 9)
-	vols := make([]float64, 0, 9)
-	overlaps := make([]float64, 0, 9)
-	var wg sync.WaitGroup
-	for r = 0.6; r <= 8.6; r++ {
-		totalOverlap := Overlap{volume: 0.0}
-		for i := 0; i < len(dists); i++ {
-			if dists[i] < 2*r {
-				wg.Add(1)
-				go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
-			}
-		}
-		wg.Wait()
-		rs = append(rs, r)
-		vols = append(vols, (math.Pi*r*r*leng+4.0/3.0*math.Pi*r*r*r)*float64(len(x)))
-		overlaps = append(overlaps, totalOverlap.volume)
-	}
+	// rs := make([]float64, 0, 9)
+	// vols := make([]float64, 0, 9)
+	// overlaps := make([]float64, 0, 9)
+	// var wg sync.WaitGroup
+	// for r = 0.6; r <= 8.6; r++ {
+	// 	totalOverlap := Overlap{volume: 0.0}
+	// 	for i := 0; i < len(dists); i++ {
+	// 		if dists[i] < 2*r {
+	// 			wg.Add(1)
+	// 			go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
+	// 		}
+	// 	}
+	// 	wg.Wait()
+	// 	rs = append(rs, r)
+	// 	vols = append(vols, (math.Pi*r*r*leng+4.0/3.0*math.Pi*r*r*r)*float64(len(x)))
+	// 	overlaps = append(overlaps, totalOverlap.volume)
+	// }
 
-	outfile, _ := os.Create("path0.6.csv")
-	defer outfile.Close()
-	writer := bufio.NewWriter(outfile)
-	writer.WriteString("rs,vols,overlaps\n")
-	for i := 0; i < len(rs); i++ {
-		writer.WriteString(fmt.Sprintf("%f,%f,%f\n", rs[i], vols[i], overlaps[i]))
-	}
-	writer.Flush()
+	// outfile, _ := os.Create("path0.6.csv")
+	// defer outfile.Close()
+	// writer := bufio.NewWriter(outfile)
+	// writer.WriteString("rs,vols,overlaps\n")
+	// for i := 0; i < len(rs); i++ {
+	// 	writer.WriteString(fmt.Sprintf("%f,%f,%f\n", rs[i], vols[i], overlaps[i]))
+	// }
+	// writer.Flush()
 }
