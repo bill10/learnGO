@@ -175,6 +175,7 @@ func main() {
 	fmt.Println("Calaculating distance completed!")
 	fmt.Println(len(dists))
 	fmt.Println(len(sinbeta))
+	fmt.Println(k)
 	// rs := make([]float64, 0, 9)
 	// vols := make([]float64, 0, 9)
 	// overlaps := make([]float64, 0, 9)
