@@ -1,15 +1,33 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
+	"sync"
 	"time"
 
 	clc "github.com/TheDemx27/calculus"
 )
 
-func dist(x1, y1, z1, x2, y2, z2, ex1, ey1, ez1, ex2, ey2, ez2, leng float64, ch chan [2]float64) {
+type Overlap struct {
+	volume float64
+	mux    sync.Mutex
+}
+
+func (c *Overlap) getOverlap(r, d, beta float64, wg *sync.WaitGroup) {
+	f := clc.NewFunc(fmt.Sprintf("sqrt(%f^2-x^2)*sqrt(%f^2-(%f-x)^2)", r, r, d))
+	integral := f.AntiDiff(d/2.0, r)
+	c.mux.Lock()
+	// Lock so only one goroutine at a time can access the map c.v.
+	c.volume += 8.0 * integral / beta
+	c.mux.Unlock()
+	wg.Done()
+}
+
+func getDistance(x1, y1, z1, x2, y2, z2, ex1, ey1, ez1, ex2, ey2, ez2, leng float64, ch chan [2]float64) {
 	var xmu0, xla0 float64
 	// distance vector between centers:
 	x12 := x2 - x1
@@ -87,9 +105,13 @@ func dist(x1, y1, z1, x2, y2, z2, ex1, ey1, ez1, ex2, ey2, ez2, leng float64, ch
 		risq = math.Min(f1, f2)
 	}
 	rclsq := rnsq + risq
-	rcl := math.Sqrt(rclsq)
-	res := [2]float64{rcl, math.Sqrt(1 - e12*e12)}
-	ch <- res
+	if rclsq <= 2.0*8.6*2.0*8.6 {
+		rcl := math.Sqrt(rclsq)
+		res := [2]float64{rcl, math.Sqrt(1 - e12*e12)}
+		ch <- res
+	} else {
+		ch <- [2]float64{-1.0, -1.0}
+	}
 }
 
 func generator(r, leng, boxleng, vol float64) (x, y, z, ex, ey, ez []float64) {
@@ -123,31 +145,53 @@ func generator(r, leng, boxleng, vol float64) (x, y, z, ex, ey, ez []float64) {
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
-	r := 1.6
+	r := 0.6
 	leng := 800.0
 	boxleng := 5000.0
-	vol := 0.0001
+	vol := 0.001
 	x, y, z, ex, ey, ez := generator(r, leng, boxleng, vol)
 	ch := make(chan [2]float64, 100)
 	count := 0
 	for i := 0; i < len(x); i++ {
 		for j := i + 1; j < len(x); j++ {
 			if (x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])+(z[i]-z[j])*(z[i]-z[j]) <= (leng+2*8.6)*(leng+2*8.6) {
-				go dist(x[i], y[i], z[i], x[j], y[j], z[j], ex[i], ey[i], ez[i], ex[j], ey[j], ez[j], leng, ch)
+				go getDistance(x[i], y[i], z[i], x[j], y[j], z[j], ex[i], ey[i], ez[i], ex[j], ey[j], ez[j], leng, ch)
 				count++
 			}
 		}
 	}
-	dists := make([]float64, count)
-	sinbeta := make([]float64, count)
+	dists := make([]float64, 0, len(x)*4)
+	sinbeta := make([]float64, 0, len(x)*4)
 	var res [2]float64
 	for i := 0; i < count; i++ {
 		res = <-ch
-		dists[i] = res[0]
-		sinbeta[i] = res[1]
+		if res[0] >= 0 {
+			dists = append(dists, res[0])
+			sinbeta = append(sinbeta, res[1])
+		}
 	}
-	fmt.Println(len(dists))
-	fmt.Println(len(sinbeta))
-	f := clc.NewFunc(fmt.Sprintf("sqrt(%f^2-x^2)*sqrt(%f^2-(%f-x)^2)", 8.0, 8.0, 10.0))
-	fmt.Println(f.AntiDiff(5.0, 8.0))
+	rs := make([]float64, 0, 9)
+	vols := make([]float64, 0, 9)
+	overlaps := make([]float64, 0, 9)
+	var wg sync.WaitGroup
+	for r = 0.6; r <= 8.6; r++ {
+		totalOverlap := Overlap{volume: 0.0}
+		for i := 0; i < count; i++ {
+			wg.Add(1)
+			go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
+		}
+		wg.Wait()
+		rs = append(rs, r)
+		vols = append(vols, (math.Pi*r*r*leng+4.0/3.0*math.Pi*r*r*r)*float64(len(x)))
+		overlaps = append(overlaps, totalOverlap.volume)
+	}
+
+	outfile, _ := os.Create("path0.6.csv")
+	defer outfile.Close()
+	writer := bufio.NewWriter(outfile)
+	writer.WriteString("rs,vols,overlaps\n")
+	for i := 0; i < len(rs); i++ {
+		writer.WriteString(fmt.Sprintf("%f,%f,%f\n", rs[i], vols[i], overlaps[i]))
+	}
+	writer.Flush()
 }
