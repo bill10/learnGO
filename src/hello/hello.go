@@ -149,7 +149,7 @@ func main() {
 	vol := 0.0001
 	x, y, z, ex, ey, ez := generator(r, leng, boxleng, vol)
 	fmt.Println(len(x))
-	ch := make(chan [2]float64, 100)
+	ch := make(chan [2]float64, len(x))
 	count := 0
 	for i := 0; i < len(x); i++ {
 		for j := i + 1; j < len(x); j++ {
