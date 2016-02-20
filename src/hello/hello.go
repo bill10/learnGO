@@ -148,34 +148,33 @@ func main() {
 	boxleng := 5000.0
 	vol := 0.0001
 	x, y, z, ex, ey, ez := generator(r, leng, boxleng, vol)
-	fmt.Println(len(x))
-	ch := make(chan [2]float64, len(x))
-	count := 0
+	fmt.Printf("Rods: %d", len(x))
+	ch := make(chan [2]float64, 1000)
+	var pairs, overlapPairs, largei uint64 = 0, 0, 0
 	for i := 0; i < len(x); i++ {
 		for j := i + 1; j < len(x); j++ {
 			if (x[i]-x[j])*(x[i]-x[j])+(y[i]-y[j])*(y[i]-y[j])+(z[i]-z[j])*(z[i]-z[j]) <= (leng+2*8.6)*(leng+2*8.6) {
 				go getDistance(x[i], y[i], z[i], x[j], y[j], z[j], ex[i], ey[i], ez[i], ex[j], ey[j], ez[j], leng, ch)
-				count++
+				pairs++
 			}
 		}
 	}
-	fmt.Println(count)
-	dists := make([]float64, count)
-	sinbeta := make([]float64, count)
+	fmt.Printf("Candidate pairs: %d", pairs)
+	dists := make([]float64, pairs)
+	sinbeta := make([]float64, pairs)
 	var res [2]float64
-	k := 0
-	for i := 0; i < count; i++ {
+	for largei = 0; largei < pairs; largei++ {
 		res = <-ch
 		if res[0] >= 0 {
-			dists[k] = res[0]
-			sinbeta[k] = res[1]
-			k++
+			dists[overlapPairs] = res[0]
+			sinbeta[overlapPairs] = res[1]
+			overlapPairs++
 		}
 	}
 	fmt.Println("Calaculating distance completed!")
+	fmt.Printf("Overlap pairs: %d", overlapPairs)
 	fmt.Println(len(dists))
 	fmt.Println(len(sinbeta))
-	fmt.Println(k)
 	// rs := make([]float64, 0, 9)
 	// vols := make([]float64, 0, 9)
 	// overlaps := make([]float64, 0, 9)
