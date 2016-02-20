@@ -188,6 +188,7 @@ func main() {
 		totalOverlap := Overlap{volume: 0.0}
 		for i := 0; i < len(dists); i++ {
 			if dists[i] < 2*r {
+				fmt.Printf("%f %f", dists[i], sinbeta[i])
 				wg.Add(1)
 				go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
 			}
