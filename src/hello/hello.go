@@ -148,6 +148,6 @@ func main() {
 	}
 	fmt.Println(len(dists))
 	fmt.Println(len(sinbeta))
-	f := clc.NewFunc(fmt.Sprintf("sqrt(%f^2-x^2)*sqrt(%f^2-(%f-x)^2)", r, r, 3.0))
-	fmt.Println(f.AntiDiff(1.5, r))
+	f := clc.NewFunc(fmt.Sprintf("sqrt(%f^2-x^2)*sqrt(%f^2-(%f-x)^2)", 8.0, 8.0, 10.0))
+	fmt.Println(f.AntiDiff(5.0, 8.0))
 }
