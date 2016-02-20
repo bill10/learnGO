@@ -160,8 +160,8 @@ func main() {
 			}
 		}
 	}
-	dists := make([]float64, 0, len(x)*4)
-	sinbeta := make([]float64, 0, len(x)*4)
+	dists := make([]float64, 0, count)
+	sinbeta := make([]float64, 0, count)
 	var res [2]float64
 	for i := 0; i < count; i++ {
 		res = <-ch
@@ -176,7 +176,7 @@ func main() {
 	var wg sync.WaitGroup
 	for r = 0.6; r <= 8.6; r++ {
 		totalOverlap := Overlap{volume: 0.0}
-		for i := 0; i < count; i++ {
+		for i := 0; i < len(dists); i++ {
 			wg.Add(1)
 			go totalOverlap.getOverlap(r, dists[i], sinbeta[i], &wg)
 		}
